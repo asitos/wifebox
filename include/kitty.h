@@ -12,6 +12,14 @@ extern U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2;
 extern Servo myServo;
 extern ScreenState currentScreen;
 
+#ifndef RESET_SERVO_DEFINED
+#define RESET_SERVO_DEFINED
+inline void resetServo() {
+  // Disabled: servo mechanically stuck. Release PWM to stop stall current and save power.
+  myServo.release();
+}
+#endif
+
 #define KITTY_BUZZER_MELODY 15 // GPIO 26
 #define KITTY_BUZZER_PURR   14 // GPIO 25
 
@@ -164,7 +172,7 @@ inline void toggleKittySleep() {
 }
 
 inline void exitKitty() {
-  myServo.write(0);
+  resetServo();
   ledcWriteTone(KITTY_BUZZER_MELODY, 0);
   ledcWriteTone(KITTY_BUZZER_PURR, 0);
   kittyPet.purrActive = false;
@@ -222,7 +230,7 @@ inline void updateKitty() {
         }
       } else {
         ledcWriteTone(KITTY_BUZZER_PURR, 0);
-        myServo.write(0); // ALWAYS return to 0!
+        resetServo();
         kittyPet.purrActive = false;
         kittyPet.soundEndTime = 0;
       }

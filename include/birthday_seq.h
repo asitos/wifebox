@@ -11,6 +11,14 @@ extern Servo myServo;
 extern volatile bool birthdayMusicActive;
 extern volatile unsigned long birthdayMusicStartTime;
 
+#ifndef RESET_SERVO_DEFINED
+#define RESET_SERVO_DEFINED
+inline void resetServo() {
+  // Disabled: servo mechanically stuck. Release PWM to stop stall current and save power.
+  myServo.release();
+}
+#endif
+
 static unsigned long birthdayStart = 0;
 static const unsigned long phaseCurtain = 1000;
 static const unsigned long phaseBombers = 2500;
@@ -52,7 +60,7 @@ inline bool renderBirthday() {
   unsigned long elapsed = millis() - birthdayStart;
   if (elapsed > birthdayDuration) {
     birthdayMusicActive = false;
-    myServo.write(0);
+    resetServo();
     u8g2.sendF("c", 0xa6); // restore normal screen
     return false;
   }

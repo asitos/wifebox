@@ -29,8 +29,8 @@
 #define BUTTON3_PIN 17
 
 // --- CONFIGURATION ---
-const char *ssid = "asitosKaRealmeGT";
-const char *password = "jhingalalaa";
+const char *ssid = "Anvesha's M35";
+const char *password = "meow1234";
 
 const char *client_id = "60a2edbbba644233b7510aa6c214dffd";
 const char *client_secret = "2b1eff5dcdf74fc1876677c290496fea";
@@ -1574,7 +1574,7 @@ void setup() {
   ESP32PWM::allocateTimer(3);
   myServo.setPeriodHertz(50);
   myServo.attach(SERVO_PIN, 500, 2400);
-  myServo.write(0);
+  resetServo();
 
   // Set up buzzers
   ledcSetup(BUZZER_CHANNEL, 2000, 8);
@@ -1681,7 +1681,7 @@ bool macroActive = false;
 void renderDisplay() {
   if (currentScreen != SCREEN_BIRTHDAY && birthdayMusicActive) {
     birthdayMusicActive = false;
-    myServo.write(0);
+    resetServo();
     ledcWriteTone(BUZZER_CHANNEL, 0);
     ledcWriteTone(BUZZER2_CHANNEL, 0);
   }
@@ -1693,7 +1693,7 @@ void renderDisplay() {
   case SCREEN_BIRTHDAY:
     if (!renderBirthday()) {
       birthdayMusicActive = false;
-      myServo.write(0);
+      resetServo();
       currentScreen = SCREEN_IDLE_WEATHER_CLOCK;
     }
     break;
@@ -1920,7 +1920,7 @@ void handleKittyButtons() {
     if (!btn3LongHandled && (now - btn3PressTimeKitty >= 1000)) {
       btn3LongHandled = true;
       // Long press: Return to SCREEN_IDLE_WEATHER_CLOCK
-      myServo.write(0);
+      resetServo();
       ledcWriteTone(BUZZER_CHANNEL, 0);
       ledcWriteTone(BUZZER2_CHANNEL, 0);
       kittyPet.purrActive = false;
@@ -1956,7 +1956,7 @@ void loop() {
     currentScreen = SCREEN_IDLE_WEATHER_CLOCK;
     macroActive = false;
     currentServoMode = SERVO_IDLE;
-    myServo.write(0);
+    resetServo();
     u8g2.clearBuffer();
   }
 
@@ -2005,11 +2005,11 @@ void loop() {
       int swing = ((elapsed / 120) % 2 == 0) ? 180 : 0;
       myServo.write(swing);
     } else {
-      myServo.write(0);
+      resetServo();
     }
 
     if (elapsed > 5000) {
-      myServo.write(0);
+      resetServo();
       macroActive = false;
       currentScreen = SCREEN_IDLE_WEATHER_CLOCK;
     }
@@ -2034,11 +2034,11 @@ void loop() {
       int swing = ((elapsed / 120) % 2 == 0) ? 180 : 0;
       myServo.write(swing);
     } else {
-      myServo.write(0);
+      resetServo();
     }
 
     if (elapsed > 10000) {
-      myServo.write(0);
+      resetServo();
       macroActive = false;
       currentScreen = SCREEN_IDLE_WEATHER_CLOCK;
     }
@@ -2069,7 +2069,7 @@ void loop() {
       }
     } else if (macroStep == 70) {
       ledcWriteTone(BUZZER_CHANNEL, 0);
-      myServo.write(0); // return to 0
+      resetServo();
       u8g2.sendF("c", 0xa6);
       macroStep = 100;
       macroActive = false;
@@ -2191,7 +2191,7 @@ void loop() {
         isAckToggled = true;
         ackDisplayEndTime = now + 1500;
         currentServoMode = SERVO_IDLE;
-        myServo.write(0);
+        resetServo();
       } else {
         if (isBtn2Long) {
           // Long press: Next Song
@@ -2277,7 +2277,7 @@ void loop() {
       int angle = ((wElapsed / 120) % 2 == 0) ? 180 : 0;
       myServo.write(angle);
     } else {
-      myServo.write(0);
+      resetServo();
       currentServoMode = SERVO_IDLE;
     }
     break;
@@ -2298,7 +2298,7 @@ void loop() {
       }
       myServo.write(currentServoAngle);
       if (servoStep >= 4 && currentServoAngle == 0) {
-        myServo.write(0);
+        resetServo();
         currentServoMode = SERVO_IDLE;
       }
     }
@@ -2319,7 +2319,7 @@ void loop() {
         myServo.write(0);
       }
     } else {
-      myServo.write(0);
+      resetServo();
       currentServoMode = SERVO_IDLE;
     }
     break;
