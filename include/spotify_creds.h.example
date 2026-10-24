@@ -1,0 +1,5 @@
+#pragma once
+
+const char *client_id = "YOUR_SPOTIFY_CLIENT_ID";
+const char *client_secret = "YOUR_SPOTIFY_CLIENT_SECRET";
+const char *refresh_token = "YOUR_SPOTIFY_REFRESH_TOKEN";

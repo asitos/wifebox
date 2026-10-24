@@ -33,11 +33,13 @@
 const char *ssid = "Anvesha's M35";
 const char *password = "meow1234";
 
-const char *client_id = "60a2edbbba644233b7510aa6c214dffd";
-const char *client_secret = "2b1eff5dcdf74fc1876677c290496fea";
-const char *refresh_token =
-    "AQD1eglb1Wp6HRuUNeU6e5o5sff6ZepFV5xpd48yoe1j_uwVRbtGJvzlDTy6WjnVnDelpc6sC_"
-    "0LSq1CETzob_DpJjLceWaxEVEgcoh3N7NskpL5wPodKPEplUOCBWdlDko";
+#if __has_include("spotify_creds.h")
+#include "spotify_creds.h"
+#else
+const char *client_id = "YOUR_SPOTIFY_CLIENT_ID";
+const char *client_secret = "YOUR_SPOTIFY_CLIENT_SECRET";
+const char *refresh_token = "YOUR_SPOTIFY_REFRESH_TOKEN";
+#endif
 
 const char *ntfy_outbound_url =
     "https://ntfy.sh/rimjhim_ji_ke_liye_miss_u_button";
