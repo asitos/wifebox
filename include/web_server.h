@@ -20,7 +20,7 @@ extern volatile bool triggerBirthday;
 extern volatile int newLocalSongId;
 extern volatile bool triggerRecentFetch;
 extern volatile int recentPage;
-enum ScreenState { SCREEN_IDLE_WEATHER_CLOCK, SCREEN_BIRTHDAY, SCREEN_LOCAL_MUSIC, SCREEN_SPOTIFY_NOW_PLAYING, SCREEN_SPOTIFY_RECENT, SCREEN_PIXEL_ART, SCREEN_WIFE_PHOTO, SCREEN_KITTY, SCREEN_HUG, SCREEN_WAKEUP, SCREEN_HEADPAT, SCREEN_KISS, SCREEN_HAND, SCREEN_WORKOUT, SCREEN_FREAKY, SCREEN_FOOD, SCREEN_STUDY };
+enum ScreenState { SCREEN_IDLE_WEATHER_CLOCK, SCREEN_BIRTHDAY, SCREEN_LOCAL_MUSIC, SCREEN_SPOTIFY_NOW_PLAYING, SCREEN_SPOTIFY_RECENT, SCREEN_PIXEL_ART, SCREEN_WIFE_PHOTO, SCREEN_HUSBAND_PHOTO, SCREEN_KITTY, SCREEN_HUG, SCREEN_WAKEUP, SCREEN_HEADPAT, SCREEN_KISS, SCREEN_HAND, SCREEN_WORKOUT, SCREEN_FREAKY, SCREEN_FOOD, SCREEN_STUDY };
 extern ScreenState currentScreen;
 
 void feedKitty();
@@ -146,6 +146,7 @@ void initWebServer() {
             }
             else if (s == "doodle" || s == "pixel_art") currentScreen = SCREEN_PIXEL_ART;
             else if (s == "photo" || s == "wife_photo") currentScreen = SCREEN_WIFE_PHOTO;
+            else if (s == "husband" || s == "husband_photo") currentScreen = SCREEN_HUSBAND_PHOTO;
             else if (s == "kitty") currentScreen = SCREEN_KITTY;
             u8g2.clearBuffer();
         }

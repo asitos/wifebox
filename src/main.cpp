@@ -1240,6 +1240,8 @@ void networkTask(void *pvParameters) {
                   pixelArtStartTime = millis();
                 } else if (s == "photo" || s == "wife_photo")
                   currentScreen = SCREEN_WIFE_PHOTO;
+                else if (s == "husband" || s == "husband_photo")
+                  currentScreen = SCREEN_HUSBAND_PHOTO;
                 else if (s == "kitty")
                   currentScreen = SCREEN_KITTY;
                 u8g2.clearBuffer();
@@ -2066,6 +2068,16 @@ void renderDisplay() {
     u8g2.setFontDirection(0);
     u8g2.sendBuffer();
     break;
+  case SCREEN_HUSBAND_PHOTO:
+    u8g2.clearBuffer();
+    u8g2.drawBitmap(0, 0, 16, 64, epd_bitmap_husband);
+    u8g2.setFont(u8g2_font_4x6_tr);
+    u8g2.setFontDirection(1);
+    u8g2.drawStr(14, 20, "i <3 u");
+    u8g2.drawStr(118, 2, "pyaara pati");
+    u8g2.setFontDirection(0);
+    u8g2.sendBuffer();
+    break;
   case SCREEN_KITTY:
     drawKittyScreen();
     break;
@@ -2352,7 +2364,7 @@ void loop() {
       virtualButton1 = false;
       if (now - debounceTime1 > 250) {
         debounceTime1 = now;
-        currentScreen = (ScreenState)((currentScreen + 1) % 8);
+        currentScreen = (ScreenState)((currentScreen + 1) % 9);
         if (currentScreen == SCREEN_PIXEL_ART) {
           pixelArtStartTime = millis();
         } else if (currentScreen == SCREEN_BIRTHDAY) {

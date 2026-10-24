@@ -220,6 +220,7 @@ canvas {
 <button onclick="switchScreen('birthday')">birthday</button>
 <button onclick="switchScreen('doodle')">doodle art</button>
 <button onclick="switchScreen('photo')">wife photo</button>
+<button onclick="switchScreen('husband_photo')">husband photo</button>
 <button onclick="switchScreen('kitty')">tamagotchi kitty</button>
 </div>
 <div class="notification" id="screen-status"></div>
