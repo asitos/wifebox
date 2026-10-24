@@ -215,6 +215,7 @@ canvas {
 <div class="btn-grid">
 <button onclick="switchScreen('clock')">clock &amp; weather</button>
 <button onclick="switchScreen('spotify')">spotify</button>
+<button onclick="switchScreen('spotify_recent')">spotify recent</button>
 <button onclick="switchScreen('music')">buzzer jukebox</button>
 <button onclick="switchScreen('birthday')">birthday</button>
 <button onclick="switchScreen('doodle')">doodle art</button>

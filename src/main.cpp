@@ -679,6 +679,112 @@ void renderSpotify() {
   u8g2.sendBuffer();
 }
 
+// --- Recently Played Spotify Tracks ---
+struct RecentTrack {
+  char title[36];
+  char artist[24];
+};
+
+const int MAX_RECENT_TRACKS = 20;
+RecentTrack recentTracks[MAX_RECENT_TRACKS];
+int recentTrackCount = 0;
+volatile int recentPage = 0;
+bool recentTracksLoaded = false;
+volatile bool triggerRecentFetch = false;
+unsigned long lastRecentFetch = 0;
+
+void fetchRecentlyPlayed() {
+  if (access_token == "")
+    return;
+
+  HTTPClient http;
+  http.begin(secureClient,
+             "https://api.spotify.com/v1/me/player/recently-played?limit=20");
+  http.addHeader("Authorization", "Bearer " + access_token);
+
+  int httpCode = http.GET();
+  if (httpCode == 200) {
+    JsonDocument filter;
+    filter["items"][0]["track"]["name"] = true;
+    filter["items"][0]["track"]["artists"][0]["name"] = true;
+
+    JsonDocument doc;
+    DeserializationError error =
+        deserializeJson(doc, http.getStream(), DeserializationOption::Filter(filter));
+    if (!error) {
+      JsonArray items = doc["items"].as<JsonArray>();
+      int count = 0;
+      for (JsonObject item : items) {
+        if (count >= MAX_RECENT_TRACKS)
+          break;
+        const char *tName = item["track"]["name"] | "";
+        const char *aName = item["track"]["artists"][0]["name"] | "";
+        strncpy(recentTracks[count].title, tName,
+                sizeof(recentTracks[count].title) - 1);
+        recentTracks[count].title[sizeof(recentTracks[count].title) - 1] = '\0';
+        strncpy(recentTracks[count].artist, aName,
+                sizeof(recentTracks[count].artist) - 1);
+        recentTracks[count].artist[sizeof(recentTracks[count].artist) - 1] = '\0';
+        count++;
+      }
+      recentTrackCount = count;
+      recentTracksLoaded = true;
+    }
+  } else if (httpCode == 401) {
+    access_token = "";
+  }
+  http.end();
+}
+
+void renderSpotifyRecent() {
+  u8g2.clearBuffer();
+
+  // Header
+  u8g2.setFont(u8g2_font_4x6_tr);
+  u8g2.drawStr(2, 8, "spotify recent");
+
+  int totalPages = (recentTrackCount + 4) / 5;
+  if (totalPages < 1)
+    totalPages = 1;
+  if (recentPage >= totalPages)
+    recentPage = 0;
+
+  char pageStr[10];
+  sprintf(pageStr, "[%d/%d]", recentPage + 1, totalPages);
+  int pw = u8g2.getStrWidth(pageStr);
+  u8g2.drawStr(126 - pw, 8, pageStr);
+
+  u8g2.drawHLine(0, 10, 128);
+
+  if (recentTrackCount == 0) {
+    if (!recentTracksLoaded) {
+      drawCenterText("loading recent...", 36);
+    } else {
+      drawCenterText("no recent songs", 36);
+    }
+    u8g2.sendBuffer();
+    return;
+  }
+
+  // 5 songs per page
+  int startIdx = recentPage * 5;
+  for (int i = 0; i < 5; i++) {
+    int idx = startIdx + i;
+    if (idx >= recentTrackCount)
+      break;
+
+    String line = String(idx + 1) + ". " + String(recentTracks[idx].title);
+    if (strlen(recentTracks[idx].artist) > 0) {
+      line += " - " + String(recentTracks[idx].artist);
+    }
+
+    int y = 20 + i * 10;
+    u8g2.drawStr(2, y, clipStr(line, 124).c_str());
+  }
+
+  u8g2.sendBuffer();
+}
+
 volatile bool localMusicPlaying = false;
 volatile int currentLocalSongIndex = 0;
 volatile int currentNoteIndex = 0;
@@ -1124,6 +1230,11 @@ void networkTask(void *pvParameters) {
                   currentScreen = SCREEN_LOCAL_MUSIC;
                 else if (s == "spotify")
                   currentScreen = SCREEN_SPOTIFY_NOW_PLAYING;
+                else if (s == "spotify_recent" || s == "recent") {
+                  currentScreen = SCREEN_SPOTIFY_RECENT;
+                  recentPage = 0;
+                  triggerRecentFetch = true;
+                }
                 else if (s == "doodle" || s == "pixel_art") {
                   currentScreen = SCREEN_PIXEL_ART;
                   pixelArtStartTime = millis();
@@ -1211,6 +1322,13 @@ void networkTask(void *pvParameters) {
       if (millis() - last_fetch_time > FETCH_DELAY) {
         fetchCurrentlyPlaying();
         last_fetch_time = millis();
+      }
+      if (triggerRecentFetch ||
+          (currentScreen == SCREEN_SPOTIFY_RECENT &&
+           millis() - lastRecentFetch > 45000)) {
+        triggerRecentFetch = false;
+        fetchRecentlyPlayed();
+        lastRecentFetch = millis();
       }
 
       // 3. Webhook Triggering (Ntfy Outbound)
@@ -1778,6 +1896,9 @@ void renderDisplay() {
   case SCREEN_SPOTIFY_NOW_PLAYING:
     renderSpotify();
     break;
+  case SCREEN_SPOTIFY_RECENT:
+    renderSpotifyRecent();
+    break;
   case SCREEN_BIRTHDAY:
     if (!renderBirthday()) {
       birthdayMusicActive = false;
@@ -2231,11 +2352,14 @@ void loop() {
       virtualButton1 = false;
       if (now - debounceTime1 > 250) {
         debounceTime1 = now;
-        currentScreen = (ScreenState)((currentScreen + 1) % 7);
+        currentScreen = (ScreenState)((currentScreen + 1) % 8);
         if (currentScreen == SCREEN_PIXEL_ART) {
           pixelArtStartTime = millis();
         } else if (currentScreen == SCREEN_BIRTHDAY) {
           startBirthday();
+        } else if (currentScreen == SCREEN_SPOTIFY_RECENT) {
+          recentPage = 0;
+          triggerRecentFetch = true;
         }
         u8g2.clearBuffer();
       }
@@ -2304,9 +2428,14 @@ void loop() {
     if (button3Flag || virtualButton3) {
       button3Flag = false;
       virtualButton3 = false;
-      if (now - debounceTime3 > 500) {
+      if (now - debounceTime3 > 250) {
         debounceTime3 = now;
-        if (currentScreen == SCREEN_IDLE_WEATHER_CLOCK) {
+        if (currentScreen == SCREEN_SPOTIFY_RECENT) {
+          int totalPages = (recentTrackCount + 4) / 5;
+          if (totalPages > 1) {
+            recentPage = (recentPage + 1) % totalPages;
+          }
+        } else if (currentScreen == SCREEN_IDLE_WEATHER_CLOCK) {
           // Toggle weather for testing
           static int testCodes[] = {0, 2, 100, 61, 95};
           static int cIdx = 0;
