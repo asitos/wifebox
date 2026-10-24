@@ -61,7 +61,7 @@ i have used an LLM to assist me in some parts of the code which was very complex
 ---
 
 ### special thanks
-thank you (@sharkthakftw) and bawandurr for helping me throughout this silly project
+thank you sarthak (@sharkthakftw) and bawandurr for helping me throughout this silly project
 
 ![sarthak](assets/sarthak.jpg)
 ![bawandurr](assets/bawandurr.jpeg)
