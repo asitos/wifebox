@@ -12,6 +12,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <WiFiManager.h>
+#include <esp_wifi.h>
 #include <Wire.h>
 #include <qrcode.h>
 
@@ -1001,12 +1002,43 @@ void buzzerTask(void *pvParameters) {
   }
 }
 
+String getStoredWiFiSSID() {
+  wifi_config_t conf;
+  memset(&conf, 0, sizeof(conf));
+  esp_wifi_get_config(WIFI_IF_STA, &conf);
+  return String(reinterpret_cast<const char *>(conf.sta.ssid));
+}
+
 // ==========================================
 //            NETWORK TASK (CORE 0)
 // ==========================================
 void networkTask(void *pvParameters) {
+  static unsigned long lastWifiScanAttempt = 0;
+  static bool isWifiScanning = false;
+  static bool wasDisconnected = false;
+  static String savedSSID = "";
+  static String savedPass = "";
+
   for (;;) {
+    unsigned long now = millis();
+
     if (WiFi.status() == WL_CONNECTED) {
+      if (WiFi.SSID().length() > 0) {
+        savedSSID = WiFi.SSID();
+        savedPass = WiFi.psk();
+      }
+      if (isWifiScanning) {
+        WiFi.scanDelete();
+        isWifiScanning = false;
+      }
+      lastWifiScanAttempt = now;
+
+      if (wasDisconnected) {
+        wasDisconnected = false;
+        configTime(19800, 0, "pool.ntp.org");
+        weatherLoaded = false;
+        Serial.println("[WiFi] Reconnected to hotspot!");
+      }
 
       // Weather Fetch
       if (!weatherLoaded || millis() - lastWeatherFetch > WEATHER_INTERVAL) {
@@ -1202,6 +1234,61 @@ void networkTask(void *pvParameters) {
         http.addHeader("Content-Type", "text/plain");
         int httpCode = http.POST(customNoteMessage);
         http.end();
+      }
+    } else {
+      wasDisconnected = true;
+      if (ntfyStreamClient.connected()) {
+        ntfyStreamClient.stop();
+      }
+
+      String storedSSID = getStoredWiFiSSID();
+      String targetSSID = (storedSSID.length() > 0) ? storedSSID : ((savedSSID.length() > 0) ? savedSSID : String(ssid));
+      String storedPass = WiFi.psk();
+      String targetPass = (storedPass.length() > 0) ? storedPass : ((savedPass.length() > 0) ? savedPass : String(password));
+
+      // Background rescanner: checks for wife's hotspot every 10-15s
+      const unsigned long RESCAN_INTERVAL = 12000;
+
+      if (!isWifiScanning) {
+        if (now - lastWifiScanAttempt >= RESCAN_INTERVAL) {
+          lastWifiScanAttempt = now;
+          Serial.printf("[WiFi-Rescan] Hotspot disconnected. Scanning for '%s'...\n", targetSSID.c_str());
+          WiFi.scanNetworks(true); // Non-blocking async scan
+          isWifiScanning = true;
+        }
+      } else {
+        if (now - lastWifiScanAttempt > 8000) {
+          // Scan watchdog timeout
+          WiFi.scanDelete();
+          isWifiScanning = false;
+          lastWifiScanAttempt = now;
+        } else {
+          int16_t n = WiFi.scanComplete();
+          if (n >= 0) {
+            bool hotspotFound = false;
+            for (int i = 0; i < n; i++) {
+              String scanned = WiFi.SSID(i);
+              if (scanned == targetSSID || (storedSSID.length() > 0 && scanned == storedSSID) || scanned == String(ssid)) {
+                hotspotFound = true;
+                break;
+              }
+            }
+            WiFi.scanDelete();
+            isWifiScanning = false;
+            lastWifiScanAttempt = now;
+
+            if (hotspotFound) {
+              Serial.printf("[WiFi-Rescan] Found '%s'! Reconnecting...\n", targetSSID.c_str());
+              WiFi.begin(targetSSID.c_str(), targetPass.c_str());
+            } else {
+              Serial.printf("[WiFi-Rescan] '%s' not found. Retry in 12s.\n", targetSSID.c_str());
+            }
+          } else if (n == WIFI_SCAN_FAILED) {
+            WiFi.scanDelete();
+            isWifiScanning = false;
+            lastWifiScanAttempt = now;
+          }
+        }
       }
     }
     vTaskDelay(50 / portTICK_PERIOD_MS); // Yield to watchdogs
@@ -1555,6 +1642,7 @@ void setupWiFiManager() {
     u8g2.sendBuffer();
   });
   wm.autoConnect("wifeBoxWifi", "iloveyou");
+  WiFi.setAutoReconnect(true);
 }
 
 void setup() {
