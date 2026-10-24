@@ -1,12 +1,12 @@
 ## wifebox
 
-> husband love wife<br>
-> wife far away :c<br>
-> husband make wifebox for wife on her birthday<br>
-> husband send wifebox with love<br>
-> wife happy<br>
-> husband semi-happy (parcel broke the servo)<br>
-> :3
+\> husband love wife<br>
+\> wife far away :c<br>
+\> husband make wifebox for wife on her birthday<br>
+\> husband send wifebox with love<br>
+\> wife happy<br>
+\> husband semi-happy (parcel broke the servo)<br>
+\> :3
 
 ## process
 started as a solution to my wife being able to stalk my spotify whenever she wants to, turned into a 24/7 tabletop idle clock / weather / spotify stalking / tamagotchi kitty / wife and husband photo display / doodle sharing / love sharing thingmabob doohickey.
