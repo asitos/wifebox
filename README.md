@@ -41,7 +41,7 @@ i have used an LLM to assist me in some parts of the code which was very complex
 ![wife photo](./assets/wifePhoto.jpg)
 
 #### dual-buzzer 8-bit undertale player demo
-![Dual-buzzer music player demo](https://github.com/user-attachments/assets/00d089d3-d92e-48f9-961b-12da8a43fc77)
+https://github.com/user-attachments/assets/00d089d3-d92e-48f9-961b-12da8a43fc77
 
 
 #### web controller dashboard
