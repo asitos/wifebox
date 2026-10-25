@@ -696,12 +696,17 @@ RecentTrack recentTracks[MAX_RECENT_TRACKS];
 int recentTrackCount = 0;
 volatile int recentPage = 0;
 bool recentTracksLoaded = false;
+int recentErrorCode = 0;
 volatile bool triggerRecentFetch = false;
 unsigned long lastRecentFetch = 0;
 
 void fetchRecentlyPlayed() {
-  if (access_token == "")
+  if (access_token == "") {
+    recentTracksLoaded = true;
+    recentErrorCode = 401;
+    Serial.println("[Spotify] fetchRecentlyPlayed: access_token is empty");
     return;
+  }
 
   HTTPClient http;
   http.begin(secureClient,
@@ -709,14 +714,18 @@ void fetchRecentlyPlayed() {
   http.addHeader("Authorization", "Bearer " + access_token);
 
   int httpCode = http.GET();
+  recentErrorCode = httpCode;
+  recentTracksLoaded = true;
+
   if (httpCode == 200) {
+    String response = http.getString();
     JsonDocument filter;
     filter["items"][0]["track"]["name"] = true;
     filter["items"][0]["track"]["artists"][0]["name"] = true;
 
     JsonDocument doc;
     DeserializationError error =
-        deserializeJson(doc, http.getStream(), DeserializationOption::Filter(filter));
+        deserializeJson(doc, response, DeserializationOption::Filter(filter));
     if (!error) {
       JsonArray items = doc["items"].as<JsonArray>();
       int count = 0;
@@ -734,10 +743,17 @@ void fetchRecentlyPlayed() {
         count++;
       }
       recentTrackCount = count;
-      recentTracksLoaded = true;
+      Serial.printf("[Spotify] Loaded %d recent tracks\n", count);
+    } else {
+      Serial.printf("[Spotify] Recent JSON parse error: %s\n", error.c_str());
     }
   } else if (httpCode == 401) {
     access_token = "";
+    Serial.println("[Spotify] Recent tracks: 401 Unauthorized, clearing token");
+  } else if (httpCode == 403) {
+    Serial.println("[Spotify] Recent tracks: 403 Forbidden! Missing user-read-recently-played scope!");
+  } else {
+    Serial.printf("[Spotify] Recent tracks HTTP error: %d\n", httpCode);
   }
   http.end();
 }
@@ -765,6 +781,14 @@ void renderSpotifyRecent() {
   if (recentTrackCount == 0) {
     if (!recentTracksLoaded) {
       drawCenterText("loading recent...", 36);
+    } else if (recentErrorCode == 403) {
+      drawCenterText("spotify 403 error", 28);
+      drawCenterText("missing scope in token", 38);
+      drawCenterText("user-read-recently-played", 48);
+    } else if (recentErrorCode != 0 && recentErrorCode != 200) {
+      char errBuf[32];
+      snprintf(errBuf, sizeof(errBuf), "http error %d", recentErrorCode);
+      drawCenterText(errBuf, 36);
     } else {
       drawCenterText("no recent songs", 36);
     }
