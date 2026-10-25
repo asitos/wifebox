@@ -564,6 +564,10 @@ void refreshAccessToken() {
     deserializeJson(doc, response);
     access_token = doc["access_token"].as<String>();
     token_start_time = millis();
+    Serial.println("[Spotify] Token refreshed successfully");
+  } else {
+    Serial.printf("[Spotify] Refresh failed HTTP %d: %s\n", httpCode,
+                  http.getString().c_str());
   }
   http.end();
 }
