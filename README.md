@@ -41,8 +41,11 @@ i have used an LLM to assist me in some parts of the code which was very complex
 ![wife photo](./assets/wifePhoto.jpg)
 
 #### dual-buzzer 8-bit undertale player demo
-https://github.com/user-attachments/assets/00d089d3-d92e-48f9-961b-12da8a43fc77
-
+<div align="center">
+<video src="https://github.com/user-attachments/assets/00d089d3-d92e-48f9-961b-12da8a43fc77
+" width="100%" controls></video>
+  <p><i>undertale theme</i></p>
+</div>
 
 #### web controller dashboard
 ![web controller dashboard](assets/controlWebpage.png)
