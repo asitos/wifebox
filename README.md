@@ -47,15 +47,15 @@ i have used an LLM to assist me in some parts of the code which was very complex
 </div>
 
 #### spotify stats
-[!recently played](/assets/spotifyRecentlyPlayed.jpg)
+[!recently played](assets/spotifyRecentlyPlayed.jpg)
   <p><i>recently played</i></p>
 
-[!spotify afk](/assets/spotifyAFK.gif)
+[!spotify afk](assets/spotifyAFK.gif)
   <p><i>spotify afk animation</i></p>
 
 #### kitty tamagotchi
-[!kitty tamagotchi](/assets/kittyTamagotchi.jpg)
-[!kitty feeding](/assets/kittyFeed.gif)
+[!kitty tamagotchi](assets/kittyTamagotchi.jpg)
+[!kitty feeding](assets/kittyFeed.gif)
 
 #### web controller dashboard
 ![web controller dashboard](assets/controlWebpage.png)
