@@ -48,24 +48,32 @@ i have used an LLM to assist me in some parts of the code which was very complex
 
 #### spotify stats
 <div align="center">
+
 ![recently played](assets/spotifyNowPlaying.jpg)
   <p><i>now playing</i></p>
+
 </div>
 
 <div align="center">
+
 ![recently played](assets/spotifyRecentlyPlayed.jpg)
   <p><i>recently played</i></p>
+
 </div>
 
 <div align="center">
+
 ![spotify afk](assets/spotifyAFK.gif)
   <p><i>spotify afk animation</i></p>
+
 </div>
 
 #### kitty tamagotchi
 <div align="center">
+
 ![kitty tamagotchi](assets/kittyTamagotchi.jpg)
 ![kitty feeding](assets/kittyFeed.gif)
+
 </div>
 
 #### web controller dashboard
