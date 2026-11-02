@@ -100,6 +100,7 @@ i have used an LLM to assist me in some parts of the code which was very complex
 - feviqwik got into the servo motor, caused the internal gears to get stuck
 - using the same timer channel for separate buzzers to play music with tracks on the same beat
 - spotify api callback website wasn't updated
+- buttons werent properly soldered, leading to improper functioning, eventually leading to breakage
 
 
 ### special thanks
