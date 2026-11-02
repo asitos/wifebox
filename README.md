@@ -91,7 +91,16 @@ i have used an LLM to assist me in some parts of the code which was very complex
 #### workbench chaos during assembly and soldering
 ![Workbench mess](assets/messOfTable.jpeg)
 
----
+### mistakes i made
+- not properly designing the enclosure
+- pushing spotify creds to this public repo, changed later, used a creds file
+- bad cable management
+- improper soldering and perfboard layout
+- improper glue gun usage, caused components to fall off after a while
+- feviqwik got into the servo motor, caused the internal gears to get stuck
+- using the same timer channel for separate buzzers to play music with tracks on the same beat
+- spotify api callback website wasn't updated
+
 
 ### special thanks
 thank you [@sharkthakftw](https://github.com/sharkthakftw) and bawandurr for helping me throughout this silly project
